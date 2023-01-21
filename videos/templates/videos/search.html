@@ -1,0 +1,25 @@
+{% extends "videos/layout.html" %}
+
+{% block body %}
+
+    <h2>Search results</h2>
+    <br>
+
+    <div>
+        <div class="row">
+            {% for video in videos %}
+                <div class="column">
+                    <div class="content">
+                        <a href="{% url 'video' title=video.title %}">
+                            <figure>
+                                <img src="{{ video.thumbnail.url }}" class="img-thumbnail" id="thumbnail">
+                                <figcaption>{{ video.title }} -- {{ video.creator }}</figcaption>
+                            </figure>
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "videos/layout.html" %}
+
+{% block body %}
+
+    <h2>Register</h2>
+    <br><br>
+
+    {% if message %}
+        <div>{{ message }}</div>
+    {% endif %}
+
+    <div id="formDiv">
+        <form action="{% url 'register' %}" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <input class="form-control" id="Title" autofocus type="text" name="username" placeholder="Username">
+            </div>
+            <div class="form-group">
+                <input class="form-control" id="Title" type="email" name="email" placeholder="Email Address">
+            </div>
+            <div class="form-group">
+                <input class="form-control" id="Title" type="password" name="password" placeholder="Password">
+            </div>
+            <div class="form-group">
+                <input class="form-control" id="Title" type="password" name="confirmation" placeholder="Confirm Password">
+            </div>
+            <input class="btn btn-primary" id="log" type="submit" value="Register">
+        </form>
+        <br>
+        Already have an account? <a id="altlog" href="{% url 'login' %}">Log In here.</a>
+    </div>
+
+{% endblock %}

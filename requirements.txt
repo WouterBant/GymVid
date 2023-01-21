@@ -1,0 +1,5 @@
+django
+snowflake
+pandas
+matplotlib
+openpyxl

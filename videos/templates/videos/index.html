@@ -1,0 +1,37 @@
+{% extends "videos/layout.html" %}
+
+{% block body %}
+
+    <body>
+        <div id="filterdiv">
+            <form id="filterform" action="{% url 'display_category' %}" method="POST">
+                {% csrf_token %}
+                <select class="form-select" aria-label="Default select example" name="category" id="filterOption" required>
+                    <option value="" disabled selected hidden>Select a category</option>
+                    {% for category in categories %}
+                        <option>{{ category }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-primary" id="filterButton">Filter</button>
+            </form>
+        <div>
+            
+        <div>
+            <div class="row">
+                {% for video in videos %}
+                    <div class="column">
+                        <div class="content">
+                            <a href="{% url 'video' title=video.title %}">
+                                <figure id="figmain">
+                                    <img src="{{ video.thumbnail.url }}" class="img-thumbnail" id="thumbnail">
+                                    <figcaption>{{ video.title }} -- {{ video.creator }}</figcaption>
+                                </figure>
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </body>
+
+{% endblock %}

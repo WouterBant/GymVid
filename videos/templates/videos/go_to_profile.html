@@ -1,0 +1,48 @@
+{% extends "videos/layout.html" %}
+
+{% block body %}
+
+    <h2>{{ profile_information.profile_name }}</h2>
+    <p>{{ profile_information.profile_description }}</p>
+    <p>Subscribers: {{number_of_subs}}</p>
+    
+    <div>
+        {% if user.is_authenticated and user != creator %}
+            {% if subbed %}
+                <form action="{% url 'removeSub' title=title %}" method="POST">
+                    {% csrf_token %}
+                    <button class="btn btn-primary" id="vid-button"><i class="material-icons" id="subclicked">grade</i></button>
+                </form>
+            {% else %}
+                <form action="{% url 'addSub' title=title %}" method="POST">
+                    {% csrf_token %}
+                    <button class="btn btn-primary" id="vid-button"><i class="material-icons" id="subnotclicked">grade</i></button>
+                </form>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <div class="row">
+        {% for video in videos %}
+            <div class="column">
+                <div class="content">
+                    <a href="{% url 'video' title=video.title %}">
+                        <figure>
+                            <img src="{{ video.thumbnail.url }}" class="img-thumbnail" id="thumbnail">
+                            <figcaption>{{ video.title }} -- {{ video.creator }}</figcaption>
+                            {% if user == video.creator %}
+                                <form action="{% url 'delete_video' id=video.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <button class="btn" id="delete-button">
+                                        <span class="material-symbols-outlined" onclick="return confirm('Are you sure you want to remove this video?')">delete</span>
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </figure>
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+{% endblock %}

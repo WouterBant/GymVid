@@ -1,0 +1,26 @@
+{% extends "videos/layout.html" %}
+
+{% block body %}
+
+    <h2>Create your personal training scheme</h2>
+    <br><br>
+
+    <div id="schemediv">
+        <form action="{% url 'download_scheme' id=video.id %}" method="POST" class="upload" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="Title" class="form-label">Enter your 1 RM for {{ video.title }}</label>
+                <input type="text" class="form-control" id="Title" placeholder="1 RM" name="max_weight" required>
+                <br>
+                <button type="submit" value="Upload" class="btn btn-success" id="createScheme">Create scheme</button>
+            </div>
+        </form>
+
+        {% if scheme %}
+            <a href="{{ MEDIA_URL }}{{ scheme }}" id="download_scheme">
+                Download scheme
+            </a>
+        {% endif %}
+    </div>
+
+{% endblock %}

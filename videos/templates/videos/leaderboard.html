@@ -1,0 +1,21 @@
+{% extends "videos/layout.html" %}
+
+{% block body %}
+    <h2>Leaderboard</h2>
+    <br>
+    <ol>
+        <div class="row" id="divleaderboard">
+            {% for video in videos %}
+                <div class="column">
+                    <a id="leaderlink" href="{% url 'video' title=video.title %}">
+                        <li id="leader">Number of likes: {{ video.likes }}</li>
+                        <figure id="figleaderboard">
+                            <img src="{{ video.thumbnail.url }}" class="img-thumbnail" id="thumbnail">
+                            <figcaption>{{ video.title }} -- {{ video.creator }}</figcaption>
+                        </figure>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </ol>
+{% endblock %}

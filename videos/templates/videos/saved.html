@@ -1,0 +1,30 @@
+{% extends "videos/layout.html" %}
+
+{% block body %}
+
+    <h2>Saved</h2>
+
+    <div class="row">
+        {% for video in videos %}
+            <div class="column">
+                <div class="content">
+                    <a href="{% url 'video' title=video.title %}">
+                        <figure id="figuresavedsecion">
+                            <img src="{{ video.thumbnail.url }}" class="img-thumbnail" id="thumbnail">
+                            <figcaption>{{ video.title }} -- {{ video.creator }}</figcaption>
+                            <form action="{% url 'delete_from_saved' title=video.title %}" method="POST">
+                                {% csrf_token %}
+                                <button class="btn" id="delete-button">
+                                    <span class="material-symbols-outlined" onclick="return confirm('Are you sure you want to unsave this video?')" id="remove-bin">
+                                        delete
+                                    </span>
+                                </button>
+                            </form>
+                        </figure>
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+{% endblock %}

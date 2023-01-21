@@ -1,0 +1,37 @@
+{% extends "videos/layout.html" %}
+
+{% block body %}
+
+    <h2>Subscriptions</h2>
+    <br>
+
+    {% if not videos %}
+        <h5>No videos of followed creators</h5>
+    {% endif %}
+
+    <div>
+        <div class="row">
+            {% for video in videos %}
+                <div class="column">
+                    <div class="content">
+                        <a href="{% url 'video' title=video.title %}">
+                            <figure>
+                                <img src="{{ video.thumbnail.url }}" class="img-thumbnail" id="thumbnail">
+                                <figcaption>{{ video.title }} -- {{ video.creator }}</figcaption>
+
+                                {% if not video.no_training_scheme %}
+                                {% comment %} if there is a scheme link to it {% endcomment %}
+                                    <form action="{% url 'get_scheme' id=video.id %}" method="POST">
+                                        {% csrf_token %}
+                                        <button class="btn btn-primary" id="vid-button" type="submit">scheme</button>
+                                    </form>
+                                {% endif %}
+                            </figure>
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+{% endblock %}

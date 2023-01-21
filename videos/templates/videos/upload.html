@@ -1,0 +1,45 @@
+{% extends "videos/layout.html" %}
+
+{% block body %}
+
+{% load static %}
+
+    <h2>Upload</h2>
+
+    <div id="formDiv">
+        <form action="{% url 'upload_video' %}" method="POST" class="upload" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="Title" class="form-label">Title</label>
+                <input type="text" class="form-control" id="Title" placeholder="Title" name="title" required>
+            </div>
+            <div class="mb-3" id="adjustedmarginss">
+                <label for="Description" class="form-label">Description</label>
+                <textarea class="form-control" id="Description" rows="3" name="description" required></textarea>
+            </div>
+            <div class="mb-3" id="adjustedmarginss">
+                <label for="formFileLg" class="form-label">Upload video</label>
+                <input class="form-control form-control-lg" id="formFileLg" type="file" id="videoFile" accept="video/*" name="video" required>
+            </div>
+            <div class="mb-3">
+                <label for="formFileLg" class="form-label">Upload thumbnail</label>
+                <input class="form-control form-control-lg" id="formFileLg" type="file" accept="image/*" name="thumbnail" required>
+            </div>
+            <div class="mb-3">
+                <label for="formFileLg" class="form-label">Optional: upload training scheme (<a id="template" href="{% static 'videos/entries/template.xlsx' %}" download="template.xlsx" type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">template</a>)</label>
+                <input class="form-control form-control-lg" id="formFileLg" type="file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" name="scheme">
+            </div>
+            <div id="choosecategorydiv">
+                <label>Choose category
+                <select class="form-select" id="formFileLg1" aria-label="Default select example" name="category">
+                    {% for category in categories %}
+                        <option>{{ category }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <br><br>
+            <button type="submit" value="Upload" class="btn btn-success" id="submitUpload">Submit</button>
+        </form>
+    </div>
+    
+{% endblock %}

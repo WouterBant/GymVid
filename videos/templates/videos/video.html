@@ -1,0 +1,250 @@
+{% extends "videos/layout.html" %}
+
+{% block body %}
+
+    <div id="display_video">
+        <video id="video_itself" src="{{ video.video_file.url }}" controls></video>
+    </div>
+
+    <div class="largescreenComments">
+        <ul class="list-group" id="commentSection">
+
+            {% if not allComments %}
+                <li id="comments" class="list-group-item d-flex justify-content-between align-items-center"> 
+                    There are no comments on this video yet.
+                </li>
+            {% endif %}
+
+            {% for comment in allComments %}
+                {% if request.user == comment.author %}
+                    <li id="comments" class="list-group-item d-flex justify-content-between align-items-center"> 
+                        {{ comment.message }}
+                        <form action="{% url 'removeComment' pk=comment.id %}" method="POST">
+                            {% csrf_token %}
+                            <button class="inlinedisplay" class="btn" id="like-button">
+                                <span class="material-symbols-outlined" onclick="return confirm('Are you sure you want to remove this comment?')" id="remove-bin">
+                                    delete
+                                </span>
+                            </button>
+                            <p id="commentAuthor">
+                                Likes: {{ comment.likes }}, {{ comment.author }}, {{comment.time_posted}}
+                            </p>
+                        </form>
+                    </li>
+                {% else %}
+                    {% if request.user in comment.comment_liked.all %}
+                        <li id="comments" class="list-group-item d-flex justify-content-between align-items-center"> 
+                            {{ comment.message }}
+                            <form action="{% url 'removeLikeComment' pk=comment.id %}" method="POST">
+                                {% csrf_token %}
+                                <button class="inlinedisplay" class="btn" id="like-button" id="selectedbutton">
+                                    <span id="selectedbutton" class="material-symbols-outlined">favorite</span>
+                                </button>
+                                <p id="commentAuthor" class="inlinedisplay">
+                                    Likes: {{ comment.likes }}, {{ comment.author }}, {{comment.time_posted}} 
+                                </p>
+                            </form>
+                        </li>
+                    {% else %}
+                        {% if user.is_authenticated %}
+                            <li id="comments" class="list-group-item d-flex justify-content-between align-items-center"> 
+                                {{ comment.message }}
+                                <form action="{% url 'addLikeComment' pk=comment.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <button class="inlinedisplay" class="btn" id="like-button">
+                                        <span class="material-symbols-outlined">favorite</span>
+                                    </button>
+                                    <p id="commentAuthor" class="inlinedisplay">
+                                        Likes: {{ comment.likes }}, {{ comment.author }}, {{comment.time_posted}} 
+                                    </p>
+                                </form>  
+                            </li>
+                        {% else %}
+                            <li id="comments" class="list-group-item d-flex justify-content-between align-items-center"> 
+                                {{ comment.message }}
+                                <p id="commentAuthor" class="inlinedisplay">
+                                    Likes: {{ comment.likes }}, {{ comment.author }}, {{comment.time_posted}} 
+                                </p>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        </ul>
+        
+        {% if user.is_authenticated %}
+            <form action="{% url 'addComment' id=video.id %}" method="POST">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary" id="postButton">Post</button>
+                <textarea id="addcomment" type="text" name="newComment" placeholder="Add a comment" required></textarea>
+            </form>
+            <br>
+        {% endif %}
+
+        <br class="endinlinedisplay"/>
+    </div>
+    
+    <div>
+        <div id="startinlinedisplay">  
+            {% if user.is_authenticated %}
+                {% if liked %}
+                    <form action="{% url 'removeLike' title=video.title %}" method="POST">
+                        {% csrf_token %}
+                        <button class="btn" style="color:red" id="vid-button">
+                            <span class="material-symbols-outlined">favorite</span>
+                        </button>
+                    </form>    
+                {% else %}
+                    <form action="{% url 'addLike' title=video.title %}" method="POST">
+                        {% csrf_token %}
+                        <button class="btn" id="vid-button">
+                            <span class="material-symbols-outlined">favorite</span>
+                        </button>
+                    </form>
+                {% endif %}
+            {% endif %}
+        </div>
+
+        <div id="startinlinedisplay">
+            <form action="{% url 'go_to_profile' id=video.id %}" method="POST">
+                {% csrf_token %}
+                <button class="btn btn-primary" id="vid-button" type="submit">
+                    <i class="material-icons ">account_circle</i>
+                </button>
+            </form>
+        </div>
+
+        <div id="startinlinedisplay">
+            {% if user.is_authenticated %}
+                {% if saved %}
+                    <form action="{% url 'removeSaved' title=video.title %}" method="POST">
+                        {% csrf_token %}
+                        <button class="btn btn-primary" id="vid-button">
+                            <span style="color:red" class="material-symbols-outlined">saved_search</span>
+                        </button>
+                    </form>
+                {% else %}
+                    <form action="{% url 'addSaved' title=video.title %}" method="POST">
+                        {% csrf_token %}
+                        <button class="btn btn-primary" id="vid-button">
+                            <span class="material-symbols-outlined">
+                                <i class="material-icons ">saved_search</i>
+                            </span>
+                        </button>
+                    </form>
+                {% endif %}
+            {% endif %}
+        </div>
+
+        <div id="startinlinedisplay">
+            {% if user.is_authenticated and user != video.creator %}
+                {% if subbed %}
+                    <form action="{% url 'removeSub' title=video.title %}" method="POST">
+                        {% csrf_token %}
+                        <button style="color:red" class="btn btn-primary" id="vid-button" id="selectedbutton">
+                            <i class="material-symbols-outlined">grade</i>
+                        </button>
+                    </form>
+                {% else %}
+                    <form action="{% url 'addSub' title=video.title %}" method="POST">
+                        {% csrf_token %}
+                        <button class="btn btn-primary" id="vid-button">
+                            <i class="material-symbols-outlined">grade</i>
+                        </button>
+                    </form>
+                {% endif %}
+            {% endif %}
+        </div>
+
+        <div id="showlikes">
+            <h5>Likes: {{ video.likes }}</h5>
+        </div>
+        
+        <div id="showtimeposted">
+            <h5> Posted at: {{ video.time_posted }} </h5>
+        </div>
+
+        <br class="endinlinedisplay"/>
+    </div>
+    <br>
+
+    <div>
+        <h4>Description: <p>{{ video.description }}</p></h4>
+    </div>
+    
+    <div class="smallscreenComments">
+        <ul class="list-group" id="commentSection">
+            {% if not allComments %}
+                <li id="comments" class="list-group-item d-flex justify-content-between align-items-center"> 
+                    There are no comments on this video yet.
+                </li>
+            {% endif %}
+            {% for comment in allComments %}
+                {% if request.user == comment.author %}
+                    <li id="comments" class="list-group-item d-flex justify-content-between align-items-center"> 
+                        {{ comment.message }}
+                        <form action="{% url 'removeComment' pk=comment.id %}" method="POST">
+                            {% csrf_token %}
+                            <button class="inlinedisplay" class="btn" id="like-button">
+                                <span class="material-symbols-outlined" onclick="return confirm('Are you sure you want to remove this comment?')" id="remove-bin">
+                                    delete
+                                </span>
+                            </button>
+                            <p id="commentAuthor" class="inlinedisplay">
+                                Likes: {{ comment.likes }}, {{ comment.author }}, {{comment.time_posted}}
+                            </p>
+                        </form>
+                    </li>
+                {% else %}
+                    {% if request.user in comment.comment_liked.all %}
+                        <li id="comments" class="list-group-item d-flex justify-content-between align-items-center"> 
+                            {{ comment.message }}
+                            <form action="{% url 'removeLikeComment' pk=comment.id %}" method="POST">
+                                {% csrf_token %}
+                                <button class="inlinedisplay" class="btn" id="like-button" id="selectedbutton">
+                                    <span id="selectedbutton" class="material-symbols-outlined">favorite</span>
+                                </button>
+                                <p id="commentAuthor" class="inlinedisplay">
+                                    Likes: {{ comment.likes }}, {{ comment.author }}, {{comment.time_posted}} 
+                                </p>
+                            </form>
+                        </li>
+                    {% else %}
+                        {% if user.is_authenticated %}
+                        <li id="comments" class="list-group-item d-flex justify-content-between align-items-center"> 
+                            {{ comment.message }}
+                            <form action="{% url 'addLikeComment' pk=comment.id %}" method="POST">
+                                {% csrf_token %}
+                                <button class="inlinedisplay" class="btn" id="like-button">
+                                    <span class="material-symbols-outlined">favorite</span>
+                                </button>
+                                <p id="commentAuthor" class="inlinedisplay">
+                                    Likes: {{ comment.likes }}, {{ comment.author }}, {{comment.time_posted}} 
+                                </p>
+                            </form>  
+                        </li>
+                        {% else %}
+                            <li id="comments" class="list-group-item d-flex justify-content-between align-items-center"> 
+                                {{ comment.message }}
+                                <p id="commentAuthor" class="inlinedisplay">
+                                    Likes: {{ comment.likes }}, {{ comment.author }}, {{comment.time_posted}} 
+                                </p>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        </ul>
+        
+        {% if user.is_authenticated %}
+            <form action="{% url 'addComment' id=video.id %}" method="POST">
+                {% csrf_token %}
+                <textarea id="addcomment" type="text" name="newComment" placeholder="Add a comment" required></textarea>
+                <button type="submit" class="btn btn-primary" id="postButton">Post</button>
+            </form>
+
+            <br><br class="endinlinedisplay">
+        {% endif %}
+    </div> 
+
+{% endblock %}

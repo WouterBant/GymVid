@@ -97,19 +97,15 @@ def leaderboard(request):
 # Renders the subscription page
 def subscriptions(request):
     userNow = request.user
-    creators = Subscribers.objects.filter(follower=userNow)
-
-    # See which creators the user follows
-    creatorsFollowed = []
-    for profile in creators:
-        creatorsFollowed.append(profile.creator)
+    creators = Subscribers.objects.filter(follower=userNow).values_list('creator', flat=True)
 
     # Select all the videos of the creators followed
-    videos = Videos_Posted.objects.filter(creator__in=creatorsFollowed)
+    videos = Videos_Posted.objects.filter(creator__in=creators)
 
     return render(request, "videos/subscriptions.html", {
         "videos": videos
     })
+
 
 
 # Renders the upload page
@@ -147,12 +143,8 @@ def video(request, title):
         # See if the user is subscribed to the creator of the video
         userNow = request.user
         creator = video.creator
-        subbed = False
-        subscribers = Subscribers.objects.filter(creator=creator)
-        for subscriber in subscribers:
-            if subscriber.follower == userNow:
-                subbed = True
-                break
+       
+        subbed = Subscribers.objects.filter(creator=creator, follower=userNow).exists()
 
         return render(request, "videos/video.html", {
             'video': video,
@@ -166,16 +158,10 @@ def video(request, title):
 # Shows the search results of the term(s) used in the searchbar
 def search(request):
     search_term = request.POST['term'].lower()
-    videos = Videos_Posted.objects.all()
-
-    # Get all videos which contain the string entered in their title
-    results = []
-    for video in videos:
-        if search_term in video.title.lower():
-            results.append(video)
+    videos = Videos_Posted.objects.filter(title__icontains=search_term)
 
     return render(request, "videos/search.html", {
-        "videos": results
+        "videos": videos
     })
 
 
@@ -194,7 +180,7 @@ def display_category(request):
 # Makes it possible to go to the profile page of another user
 def go_to_profile(request, id):
     # Get the creator of the video
-    record = Videos_Posted.objects.get(id=id)
+    record = Videos_Posted.objects.select_related('creator').get(id=id)
     creator = record.creator
 
     # Get all videos of the creator
@@ -204,25 +190,20 @@ def go_to_profile(request, id):
     profileData = creator.person.all().get()
 
     # Get the title of one of the videos, this is needed for subscribing
-    title = videos[:1].get()
+    title = videos.values('title').first()
 
-    # Get all the people who follow the creator
-    subscribers = Subscribers.objects.filter(creator=creator).all()
-    subCount = subscribers.count()
+    # Get the count of subscribers
+    subCount = Subscribers.objects.filter(creator=creator).count()
 
-    # See if the user follows the person on the profile page
+    # Check if the current user follows the creator
     userNow = request.user
-    subbed = False
-    for sub in subscribers:
-        if sub.follower == userNow:
-            subbed = True
-            break
+    subbed = Subscribers.objects.filter(creator=creator, follower=userNow).exists()
 
     return render(request, "videos/go_to_profile.html", {
         "creator": creator,
         "videos": videos,
         "profile_information": profileData,
-        "title": title,
+        "title": title['title'] if title else None,
         "number_of_subs": subCount,
         "user": userNow,
         "subbed": subbed
